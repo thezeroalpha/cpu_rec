@@ -6,13 +6,13 @@
 # It can be used as a standalone tool, or as a plugin for binwalk
 
 # Copyright 2017-2019. Airbus -- Louis Granboulan
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -735,6 +735,25 @@ def which_arch(d = None, training = {}):
         return None
     res, r2, r3 = training['p'].deduce(d)
     return res
+
+from typing import Optional, List
+def which_arch2(d = None, training = {}) -> Optional[List[str]]:
+    if not 'p' in training:
+        t = TrainingData()
+        t.read_corpus()
+        training['p'] = FileAnalysis(t)
+    if d is None:
+        return None
+
+    archs = []
+    res, *_ = training['p'].deduce(d)
+    if res:
+        archs.append(res)
+    _, cpu, *_ = training['p'].sliding_window(d)
+    if cpu:
+        archs.append(cpu)
+
+    return (archs if archs else None)
 
 
 if __name__ == "__main__":
